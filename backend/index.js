@@ -4,6 +4,8 @@ import express from 'express';
 import mongoose from 'mongoose';
 import morgan from 'morgan';
 
+import routes from './routes/index.js';
+
 dotenv.config();
 
 const app = express();
@@ -25,6 +27,8 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true 
   .catch(err => console.error('MongoDB connection error:', err));
 app.use(express.json());
 
+app.use('/api-v1', routes);
+
 // error middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -44,15 +48,3 @@ app.get('/', async(req, res) => {
   res.status(200).json({
     message: 'Welcome to Taskido API'});
 });
-
-// Connect to MongoDB and start the server
-// mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-//   .then(() => {
-//     console.log('Connected to MongoDB');
-//     app.listen(PORT, () => {
-//       console.log(`Server is running on http://localhost:${PORT}`);
-//     });
-//   })
-//   .catch((error) => {
-//     console.error('Error connecting to MongoDB:', error);
-//   });

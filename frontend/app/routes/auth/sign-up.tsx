@@ -2,14 +2,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useSignUpMutation } from "@/hooks/use-auth";
 import { signUpSchema } from "@/lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router";
+import { toast } from "sonner";
 import {z} from "zod"
 
 
-type SignUpFormData = z.infer<typeof signUpSchema>;
+export type SignUpFormData = z.infer<typeof signUpSchema>;
 
 const SignUp = () => {
   const form = useForm<SignUpFormData>({
@@ -22,8 +24,20 @@ const SignUp = () => {
     },
   });
 
+  const { mutate, isPending } = useSignUpMutation();
+
   const handleSubmit = (values: SignUpFormData) => {
-    console.log(values);
+    mutate(values, {
+      onSuccess: () => {
+        toast.success("Account created successfully");
+      },
+      onError: (error: any) => {
+        const errorMessage = error.response?.data?.message || "An error occurred";
+        console.log(error);
+        
+        toast.error(errorMessage);
+      }
+    });
   };
 
   return (
@@ -90,8 +104,8 @@ const SignUp = () => {
                   </FormItem>
                 )}
               />
-              <Button type='submit' className='w-full'>
-                Create Account
+              <Button type='submit' className='w-full' disabled={isPending}>
+                {isPending? "Creating account..." : "Create Account"}
               </Button>
             </form>
           </Form>
